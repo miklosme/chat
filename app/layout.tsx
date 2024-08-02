@@ -15,6 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en">
+        <title>Chat</title>
         <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
           <SignedOut>
             <header className="m-4">
