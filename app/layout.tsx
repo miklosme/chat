@@ -1,21 +1,43 @@
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server';
 import { PermissionDenied } from '@/components/permission-denied';
+import { Button } from '@/components/ui/button';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const hasPermission = false;
   return (
     <ClerkProvider>
       <html lang="en">
         <body>
-          <header>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-          </header>
-          <main>{hasPermission ? children : <PermissionDenied />}</main>
+          <SignedOut>
+            <header className="m-4">
+              <Button variant="outline" asChild>
+                <SignInButton />
+              </Button>
+            </header>
+          </SignedOut>
+          <SignedIn>
+            <Main>{children}</Main>
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>
   );
+}
+
+const WHITELIST = ['m.miklos05@gmail.com'];
+
+async function Main({ children }: { children: React.ReactNode }) {
+  const user = await currentUser();
+  const hasPermission = user?.primaryEmailAddress && WHITELIST.includes(user.primaryEmailAddress.emailAddress);
+
+  if (!hasPermission) {
+    return (
+      <main className="m-4">
+        <PermissionDenied />
+      </main>
+    );
+  }
+
+  return <main>{children}</main>;
 }
