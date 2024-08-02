@@ -1,5 +1,5 @@
-import { createEnv } from '@t3-oss/env-nextjs'
-import { z } from 'zod'
+import { createEnv } from '@t3-oss/env-nextjs';
+import { z } from 'zod';
 
 export const env = createEnv({
   /**
@@ -10,12 +10,12 @@ export const env = createEnv({
     // Auth
     CLERK_SECRET_KEY: z.string(),
 
+    // Database
+    DATABASE_URL: z.string(),
+
     // AI
     OPENAI_API_KEY: z.string(),
     ANTHROPIC_API_KEY: z.string(),
-
-    // Database
-    // TODO
   },
 
   /**
@@ -35,6 +35,7 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.DATABASE_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    DATABASE_URL: process.env.DATABASE_URL,
 
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   },
@@ -48,4 +49,4 @@ export const env = createEnv({
    * `SOME_VAR=''` will throw an error.
    */
   emptyStringAsUndefined: true,
-})
+});

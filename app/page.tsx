@@ -1,7 +1,17 @@
-import { Chat } from '@/components/chat';
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { currentUser } from '@clerk/nextjs/server';
+import { Chat } from '@/components/chat';
+import { db, threads, sql } from '@/db';
 
-export default function Home() {
+export default async function Home() {
+  const user = await currentUser();
+  const threadsData = await db
+    .select()
+    .from(threads)
+    .where(sql`${threads.ownerId} = ${user!.id}`);
+
+  console.log('threadsData', threadsData);
+
   return (
     <Chat
       auth={
@@ -9,6 +19,7 @@ export default function Home() {
           <UserButton />
         </SignedIn>
       }
+      threadsData={threadsData}
     />
   );
 }

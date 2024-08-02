@@ -10,12 +10,21 @@ import { Button } from '@/components/ui/button';
 import { EllipsisIcon, SquarePenIcon, PanelLeftIcon } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
+import { threads, type InferSelectModel } from '@/db';
 
-export function Chat({ auth }: { auth: React.ReactNode }) {
+export function Chat({
+  auth,
+  threadsData,
+}: {
+  auth: React.ReactNode;
+  threadsData: InferSelectModel<typeof threads>[];
+}) {
   const [model, setModel] = useState(AI_MODELS[0]!.id);
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     body: { model },
   });
+
+  console.log('threadsData', threadsData);
 
   return (
     <div className="flex h-screen">
@@ -30,7 +39,9 @@ export function Chat({ auth }: { auth: React.ReactNode }) {
               <div>
                 <h2 className="text-sm font-semibold text-muted-foreground">Today</h2>
                 <ul className="mt-2 space-y-2">
-                  <li>Countries Using Precedent</li>
+                  {threadsData.map((thread) => (
+                    <li key={thread.id}>{thread.title}</li>
+                  ))}
                 </ul>
               </div>
               <div>

@@ -1,0 +1,15 @@
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { env } from '@/env';
+
+const client = postgres(env.DATABASE_URL);
+
+export const db = drizzle(client);
+
+// Schema
+
+export { threads } from './schema';
+
+// Utils
+
+export { sql, type InferSelectModel } from 'drizzle-orm';

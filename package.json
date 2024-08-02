@@ -1,12 +1,14 @@
 {
-  "name": "clerk-nextjs-quickstart-app-router",
+  "name": "lawchat",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "drizzle-kit generate:pg",
+    "db:push": "drizzle-kit push:pg"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.35",
@@ -22,9 +24,12 @@
     "ai": "^3.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.32.1",
     "lucide-react": "^0.424.0",
+    "nanoid": "^5.0.7",
     "next": "14.2.0",
     "next-themes": "^0.3.0",
+    "postgres": "^3.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.4.0",
@@ -36,6 +41,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
+    "drizzle-kit": "^0.23.1",
     "eslint": "latest",
     "eslint-config-next": "14.2.0",
     "postcss": "latest",
