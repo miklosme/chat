@@ -24,8 +24,6 @@ export function Chat({
     body: { model },
   });
 
-  console.log('threadsData', threadsData);
-
   return (
     <div className="flex h-screen">
       <div className="flex flex-col border-r border-border">

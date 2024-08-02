@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     // model: openai('gpt-4o-mini'),
     messages: convertToCoreMessages(messages),
     onFinish: async (data) => {
-      console.log(data);
+      // console.log(data);
     },
   });
 

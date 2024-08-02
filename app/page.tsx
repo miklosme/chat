@@ -10,8 +10,6 @@ export default async function Home() {
     .from(threads)
     .where(sql`${threads.ownerId} = ${user!.id}`);
 
-  console.log('threadsData', threadsData);
-
   return (
     <Chat
       auth={
