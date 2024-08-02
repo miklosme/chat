@@ -1,17 +1,9 @@
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import "./globals.css";
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { PermissionDenied } from '@/components/permission-denied';
+import './globals.css';
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const hasPermission = false;
   return (
     <ClerkProvider>
       <html lang="en">
@@ -21,7 +13,7 @@ export default function RootLayout({
               <SignInButton />
             </SignedOut>
           </header>
-          <main>{children}</main>
+          <main>{hasPermission ? children : <PermissionDenied />}</main>
         </body>
       </html>
     </ClerkProvider>
