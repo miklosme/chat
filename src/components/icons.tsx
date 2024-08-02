@@ -1,4 +1,4 @@
-export function OpenAIIcon(props) {
+export function OpenAIIcon(props: any) {
   return (
     <svg viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" className="icon-md" {...props}>
       <text x={-9999} y={-9999}>
@@ -12,7 +12,7 @@ export function OpenAIIcon(props) {
   );
 }
 
-export function AnthropicIcon(props) {
+export function AnthropicIcon(props: any) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
