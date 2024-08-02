@@ -2,13 +2,20 @@ import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@c
 import { currentUser } from '@clerk/nextjs/server';
 import { PermissionDenied } from '@/components/permission-denied';
 import { Button } from '@/components/ui/button';
+import { Inter as FontSans } from 'next/font/google';
+import { cn } from '@/lib/utils';
 import './globals.css';
+
+const fontSans = FontSans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body>
+        <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
           <SignedOut>
             <header className="m-4">
               <Button variant="outline" asChild>
