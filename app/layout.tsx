@@ -2,6 +2,7 @@ import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@c
 import { currentUser } from '@clerk/nextjs/server';
 import { PermissionDenied } from '@/components/permission-denied';
 import { Button } from '@/components/ui/button';
+import { ThemeProvider } from '@/components/theme-provider';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import './globals.css';
@@ -17,16 +18,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en">
         <title>Chat</title>
         <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
-          <SignedOut>
-            <header className="m-4">
-              <Button variant="outline" asChild>
-                <SignInButton />
-              </Button>
-            </header>
-          </SignedOut>
-          <SignedIn>
-            <Main>{children}</Main>
-          </SignedIn>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <SignedOut>
+              <header className="m-4">
+                <Button variant="outline" asChild>
+                  <SignInButton />
+                </Button>
+              </header>
+            </SignedOut>
+            <SignedIn>
+              <Main>{children}</Main>
+            </SignedIn>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
@@ -41,7 +44,7 @@ async function Main({ children }: { children: React.ReactNode }) {
 
   if (!hasPermission) {
     return (
-      <main className="m-4">
+      <main className="m-4 dark">
         <PermissionDenied />
       </main>
     );

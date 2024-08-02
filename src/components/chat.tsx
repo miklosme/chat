@@ -9,11 +9,12 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EllipsisIcon, SquarePenIcon, PanelLeftIcon } from 'lucide-react';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export function Chat({ auth }: { auth: React.ReactNode }) {
   return (
     <div className="flex h-screen">
-      <div className="flex flex-col border-r border-gray-200">
+      <div className="flex flex-col border-r border-border">
         <div className="flex items-center justify-between m-4 mt-6">
           <PanelLeftIcon className="w-6 h-6" />
           <SquarePenIcon className="w-6 h-6" />
@@ -57,7 +58,7 @@ export function Chat({ auth }: { auth: React.ReactNode }) {
         </ScrollArea>
       </div>
       <div className="flex flex-col flex-1">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <Select>
             <SelectTrigger
               id="chatbot"
@@ -75,7 +76,10 @@ export function Chat({ auth }: { auth: React.ReactNode }) {
             <AvatarImage src="/placeholder-user.jpg" />
             <AvatarFallback>HE</AvatarFallback>
           </Avatar> */}
-          {auth}
+          <div className="flex items-center space-x-4">
+            <ModeToggle />
+            {auth}
+          </div>
         </div>
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
@@ -93,7 +97,7 @@ export function Chat({ auth }: { auth: React.ReactNode }) {
             </div>
           </div>
         </ScrollArea>
-        <div className="p-4 border-t border-gray-200 flex items-center">
+        <div className="p-4 border-t border-border flex items-center">
           <Input placeholder="Message ChatGPT" className="w-full mr-4" />
           <Button>Send</Button>
         </div>
