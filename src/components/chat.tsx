@@ -11,10 +11,11 @@ import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
 
-export function Chat({ threadId }: { threadId?: string }) {
+export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: any[] }) {
   const [model, setModel] = useState(AI_MODELS[0]!.id);
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    body: { model },
+    body: { model, threadId },
+    initialMessages,
   });
 
   return (
@@ -47,8 +48,8 @@ export function Chat({ threadId }: { threadId?: string }) {
       </div>
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.map((m) => (
-            <div key={m.id}>
+          {messages.map((m, index) => (
+            <div key={index}>
               {m.role === 'user' ? (
                 <div className="flex justify-end">
                   <div className="bg-gray-800 text-white p-3 rounded-lg max-w-xs">{m.content}</div>
