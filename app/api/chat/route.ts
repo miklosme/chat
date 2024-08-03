@@ -31,16 +31,17 @@ export async function POST(req: Request) {
     messages: convertToCoreMessages(messages),
     onFinish: async (data) => {
       const result = {
-        id: createId('msg'),
         role: 'assistant',
         content: data.text,
       };
 
+      const newMessages = [...messages, result].map((m) => ({
+        ...m,
+        id: m.id || createId('msg'),
+      }));
+
       try {
-        await db
-          .update(threads)
-          .set({ messages: [...messages, result], updatedAt: new Date() })
-          .where(eq(threads.id, threadId));
+        await db.update(threads).set({ messages: newMessages, updatedAt: new Date() }).where(eq(threads.id, threadId));
 
         console.log('Updated thread');
       } catch (e) {
