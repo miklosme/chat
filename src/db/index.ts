@@ -9,7 +9,3 @@ export const db = drizzle(client);
 // Schema
 
 export { threads } from './schema';
-
-// Utils
-
-export { sql, type InferSelectModel } from 'drizzle-orm';
