@@ -1,6 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
-import { convertToCoreMessages, streamText } from 'ai';
+import { convertToCoreMessages, streamText, StreamData } from 'ai';
+import { currentUser } from '@clerk/nextjs/server';
 import { AI_MODELS } from '@/lib/models';
 import { db, threads } from '@/db';
 import { eq, n } from 'drizzle-orm';
@@ -9,7 +10,7 @@ import { createId } from '@/lib/id';
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  const { messages, model, threadId } = await req.json();
+  const { messages, model, threadId: requestThreadId } = await req.json();
 
   // TODO validate thread ownership
 
@@ -19,6 +20,31 @@ export async function POST(req: Request) {
 
   if (!AI_MODELS.find((m) => m.id === model)) {
     return new Response('Invalid model', { status: 400 });
+  }
+
+  const data = new StreamData();
+
+  const user = await currentUser();
+
+  if (!user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  let threadId: string = requestThreadId;
+
+  if (!requestThreadId) {
+    const newThread = await db
+      .insert(threads)
+      .values({
+        title: 'New Thread',
+        messages,
+        ownerId: user.id,
+      })
+      .returning({ id: threads.id });
+
+    threadId = newThread[0]!.id;
+
+    data.append({ threadId });
   }
 
   const vendor = AI_MODELS.find((m) => m.id === model)!.vendor;
@@ -33,10 +59,10 @@ export async function POST(req: Request) {
     model: provider(model),
     // model: openai('gpt-4o-mini'),
     messages: convertToCoreMessages(messages),
-    onFinish: async (data) => {
+    onFinish: async (resp) => {
       const result = {
         role: 'assistant',
-        content: data.text,
+        content: resp.text,
       };
 
       const newMessages = [...messages, result].map((m) => ({
@@ -51,8 +77,10 @@ export async function POST(req: Request) {
       } catch (e) {
         console.error('onEnd error', [...messages, result], e.message);
       }
+
+      data.close();
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({ data });
 }
