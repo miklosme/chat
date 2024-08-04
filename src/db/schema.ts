@@ -8,6 +8,6 @@ export const threads = pgTable('threads', {
   title: text('title'),
   messages: jsonb('messages').$defaultFn(() => []),
   ownerId: text('owner_id').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

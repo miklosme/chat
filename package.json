@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "drizzle-kit generate:pg",
-    "db:push": "drizzle-kit push:pg"
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.35",

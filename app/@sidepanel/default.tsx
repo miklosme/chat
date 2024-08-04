@@ -1,11 +1,35 @@
+import { Fragment } from 'react';
 import { currentUser } from '@clerk/nextjs/server';
-import { EllipsisIcon, SquarePenIcon, PanelLeftIcon } from 'lucide-react';
+import { SquarePenIcon, PanelLeftIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { ThreadMenu } from '@/components/thread-menu';
 import { db, threads } from '@/db';
 import { sql, asc, desc } from 'drizzle-orm';
 import Link from 'next/link';
+import { isToday, isYesterday, differenceInDays, format } from 'date-fns';
+
+function makeTimeLabel(date: Date) {
+  if (isToday(date)) {
+    return 'Today';
+  }
+
+  if (isYesterday(date)) {
+    return 'Yesterday';
+  }
+
+  const daysAgo = differenceInDays(new Date(), date);
+
+  if (daysAgo < 7) {
+    return 'Previous 7 Days';
+  }
+
+  if (daysAgo < 30) {
+    return 'Previous 30 Days';
+  }
+
+  return format(date, 'MMM yyyy');
+}
 
 export default async function SidePanel() {
   const user = await currentUser();
@@ -31,53 +55,26 @@ export default async function SidePanel() {
       </div>
       <ScrollArea className="flex-1 w-64">
         <div className="p-4">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-sm font-semibold text-muted-foreground">Today</h2>
-              <ul className="mt-2">
-                {threadsData.map((thread) => (
-                  <li key={thread.id} className="">
-                    <Link
-                      href={`/thread/${thread.id}`}
-                      className="group block w-full h-full p-1 hover:bg-muted rounded-md -ml-1"
-                    >
-                      <span className="flex justify-between">
-                        <span className="truncate">{thread.title}</span>
-                        <span className="opacity-0 group-hover:opacity-100">
-                          <ThreadMenu />
-                        </span>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {/* <div>
-                <h2 className="text-sm font-semibold text-muted-foreground">Yesterday</h2>
-                <ul className="mt-2 space-y-2">
-                  <li>
-                    <div className="flex items-center justify-between">
-                      <span>Ideology Driven Term</span>
-                      <EllipsisIcon className="w-4 h-4" />
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-muted-foreground">Previous 7 Days</h2>
-                <ul className="mt-2 space-y-2">
-                  <li>Infantilis</li>
-                  <li>Practitioner Learning Scope</li>
-                  <li>Creatine Overdose Risks</li>
-                  <li>Ideal Sleeping Positions</li>
-                  <li>Redis for Chat Apps</li>
-                  <li>Frozen Shrimp Status</li>
-                  <li>Book of Mormon Music</li>
-                  <li>Precedent in US Law</li>
-                  <li>Ukrainian Influencer Handle Inquiry</li>
-                </ul>
-              </div> */}
-          </div>
+          {threadsData
+            .map((thread) => ({ thread, timeLabel: makeTimeLabel(thread.updatedAt) }))
+            .map(({ thread, timeLabel }, index, arr) => (
+              <Fragment key={thread.id}>
+                {index === 0 || arr[index - 1]!.timeLabel !== timeLabel ? (
+                  <h2 className="text-sm font-semibold text-muted-foreground my-2">{timeLabel}</h2>
+                ) : null}
+                <Link
+                  href={`/thread/${thread.id}`}
+                  className="group block w-full h-full p-1 hover:bg-muted rounded-md -ml-1"
+                >
+                  <span className="flex justify-between">
+                    <span className="truncate">{thread.title}</span>
+                    <span className="opacity-0 group-hover:opacity-100">
+                      <ThreadMenu />
+                    </span>
+                  </span>
+                </Link>
+              </Fragment>
+            ))}
         </div>
       </ScrollArea>
     </>
