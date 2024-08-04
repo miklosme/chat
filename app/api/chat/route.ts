@@ -1,6 +1,6 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
-import { convertToCoreMessages, streamText, StreamData } from 'ai';
+import { convertToCoreMessages, streamText, generateText, StreamData } from 'ai';
 import { currentUser } from '@clerk/nextjs/server';
 import { AI_MODELS } from '@/lib/models';
 import { db, threads } from '@/db';
@@ -33,10 +33,21 @@ export async function POST(req: Request) {
   let threadId: string = requestThreadId;
 
   if (!requestThreadId) {
+    const { text: title } = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: `
+Summarize the conversation in this thread.
+Use only a few words.
+Don't use punctuation at the end.
+This is the first message:
+===
+${messages[0].content}`.trim(),
+    });
+
     const newThread = await db
       .insert(threads)
       .values({
-        title: 'New Thread',
+        title,
         messages,
         ownerId: user.id,
       })
