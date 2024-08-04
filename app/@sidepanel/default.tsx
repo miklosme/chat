@@ -2,6 +2,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { EllipsisIcon, SquarePenIcon, PanelLeftIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { ThreadMenu } from '@/components/thread-menu';
 import { db, threads } from '@/db';
 import { sql, asc, desc } from 'drizzle-orm';
 import Link from 'next/link';
@@ -38,9 +39,14 @@ export default async function SidePanel() {
                   <li key={thread.id} className="">
                     <Link
                       href={`/thread/${thread.id}`}
-                      className="block w-full h-full p-1 hover:bg-muted rounded-md -ml-1"
+                      className="group block w-full h-full p-1 hover:bg-muted rounded-md -ml-1"
                     >
-                      {thread.title}
+                      <span className="flex justify-between">
+                        <span className="truncate">{thread.title}</span>
+                        <span className="opacity-0 group-hover:opacity-100">
+                          <ThreadMenu />
+                        </span>
+                      </span>
                     </Link>
                   </li>
                 ))}
