@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
 
-export function Chat({ threadId: paramThreadId, initialMessages }: { threadId?: string; initialMessages?: any[] }) {
-  const [threadId, setThreadId] = useState(paramThreadId);
+export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: any[] }) {
   const [model, setModel] = useState(AI_MODELS[0]!.id);
   const { messages, input, data, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
@@ -21,10 +20,6 @@ export function Chat({ threadId: paramThreadId, initialMessages }: { threadId?: 
       console.log('useChat response', response);
     },
   });
-
-  if (data?.threadId && data.threadId !== threadId) {
-    setThreadId(data.threadId);
-  }
 
   return (
     <div className="flex flex-col flex-1">

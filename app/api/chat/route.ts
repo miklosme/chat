@@ -4,7 +4,7 @@ import { convertToCoreMessages, streamText, generateText, StreamData } from 'ai'
 import { currentUser } from '@clerk/nextjs/server';
 import { AI_MODELS } from '@/lib/models';
 import { db, threads } from '@/db';
-import { eq, n } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { createId } from '@/lib/id';
 
 export const maxDuration = 60;
@@ -86,7 +86,7 @@ ${messages[0].content}`.trim(),
 
         console.log('Updated thread');
       } catch (e) {
-        console.error('onEnd error', [...messages, result], e.message);
+        console.error('onEnd error', [...messages, result], e instanceof Error ? e.message : e);
       }
 
       data.close();
