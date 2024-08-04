@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { cva } from 'class-variance-authority';
 
-const header = cva('flex items-center justify-between m-4 mt-4', {
+const header = cva('flex items-center justify-between my-4 mx-1.5', {
   variants: {
     open: {
       true: 'flex-row',
@@ -18,7 +18,7 @@ const header = cva('flex items-center justify-between m-4 mt-4', {
   },
 });
 
-const threadLink = cva('group block w-full h-full p-1 hover:bg-muted rounded-md -ml-1', {
+const threadLink = cva('group block w-[235px] h-full p-1 hover:bg-muted rounded-md -ml-1', {
   variants: {
     active: {
       true: 'bg-muted',
