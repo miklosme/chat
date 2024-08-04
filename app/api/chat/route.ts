@@ -25,6 +25,10 @@ export async function POST(req: Request) {
 
   const provider = vendor === 'OpenAI' ? openai : anthropic;
 
+  // TODO when refactored, make sure the stream does not wait while this is updating
+  // for now it's improtant because the @sidepanel refresh depends on the updatedAt
+  await db.update(threads).set({ messages, updatedAt: new Date() }).where(eq(threads.id, threadId));
+
   const result = await streamText({
     model: provider(model),
     // model: openai('gpt-4o-mini'),
