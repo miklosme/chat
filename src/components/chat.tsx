@@ -16,6 +16,9 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
     initialMessages,
+    onResponse: (response) => {
+      console.log('useChat response', response);
+    },
   });
 
   return (
