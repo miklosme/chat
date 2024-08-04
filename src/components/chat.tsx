@@ -19,7 +19,6 @@ export function Chat({ threadId: paramThreadId, initialMessages }: { threadId?: 
     initialMessages,
     onResponse: (response) => {
       console.log('useChat response', response);
-      
     },
   });
 
@@ -52,7 +51,9 @@ export function Chat({ threadId: paramThreadId, initialMessages }: { threadId?: 
           </Avatar> */}
         <div className="flex items-center space-x-4">
           <ModeToggle />
-          <UserButton />
+          <span className="w-[32px] flex align-middle">
+            <UserButton />
+          </span>
         </div>
       </div>
       <ScrollArea className="flex-1 p-4">

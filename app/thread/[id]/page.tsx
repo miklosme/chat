@@ -1,11 +1,19 @@
 import { Chat } from '@/components/chat';
-import { Metadata } from 'next';
 import { db, threads } from '@/db';
 import { sql } from 'drizzle-orm';
 
-export const metadata: Metadata = {
-  title: 'Thread',
-};
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const data = await db
+    .select({
+      title: threads.title,
+    })
+    .from(threads)
+    .where(sql`${threads.id} = ${params.id}`);
+
+  return {
+    title: data[0]?.title,
+  };
+}
 
 export default async function Thread({ params }: { params: { id: string } }) {
   const data = await db
