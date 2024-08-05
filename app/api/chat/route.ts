@@ -33,7 +33,22 @@ export async function POST(req: Request) {
   let threadId: string = requestThreadId;
 
   if (!requestThreadId) {
-    const { text: title } = await generateText({
+    const newThread = await db
+      .insert(threads)
+      .values({
+        title: 'New Thread',
+        messages,
+        ownerId: user.id,
+      })
+      .returning({ id: threads.id });
+
+    threadId = newThread[0]!.id;
+
+    console.log('new thread', { redirectTo: `/thread/${threadId}` });
+
+    data.append({ redirectTo: `/thread/${threadId}` });
+
+    void generateText({
       model: openai('gpt-4o-mini'),
       prompt: `
 Summarize the conversation in this thread.
@@ -42,21 +57,12 @@ Don't use punctuation at the end.
 This is the first message:
 ===
 ${messages[0].content}`.trim(),
+    }).then(async ({ text: title }) => {
+      await db.update(threads).set({ title }).where(eq(threads.id, threadId));
     });
-
-    const newThread = await db
-      .insert(threads)
-      .values({
-        title,
-        messages,
-        ownerId: user.id,
-      })
-      .returning({ id: threads.id });
-
-    threadId = newThread[0]!.id;
-
-    data.append({ threadId });
   }
+
+  data.close();
 
   const vendor = AI_MODELS.find((m) => m.id === model)!.vendor;
 
@@ -81,15 +87,7 @@ ${messages[0].content}`.trim(),
         id: m.id || createId('msg'),
       }));
 
-      try {
-        await db.update(threads).set({ messages: newMessages, updatedAt: new Date() }).where(eq(threads.id, threadId));
-
-        console.log('Updated thread');
-      } catch (e) {
-        console.error('onEnd error', [...messages, result], e instanceof Error ? e.message : e);
-      }
-
-      data.close();
+      await db.update(threads).set({ messages: newMessages, updatedAt: new Date() }).where(eq(threads.id, threadId));
     },
   });
 

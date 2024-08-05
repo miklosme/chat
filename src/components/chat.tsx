@@ -10,16 +10,31 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
+import { useRouter } from 'next/navigation';
 
 export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: any[] }) {
   const [model, setModel] = useState(AI_MODELS[0]!.id);
-  const { messages, input, data, handleInputChange, handleSubmit } = useChat({
+  const router = useRouter();
+  const {
+    messages,
+    input,
+    data: _data,
+    handleInputChange,
+    handleSubmit,
+  } = useChat({
     body: { model, threadId },
     initialMessages,
     onResponse: (response) => {
       console.log('useChat response', response);
     },
   });
+
+  const data = (_data ?? []) as [{ redirectTo?: string }];
+  const redirectTo = data.find((d) => d.redirectTo)?.redirectTo;
+
+  if (!threadId && redirectTo) {
+    router.push(redirectTo);
+  }
 
   return (
     <div className="flex flex-col flex-1">
