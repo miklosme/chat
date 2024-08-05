@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { type Message } from 'ai';
 import { useChat } from 'ai/react';
 import { UserButton } from '@clerk/nextjs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,49 +11,30 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
-import { createNewThread } from './actions';
+import { useRouter } from 'next/navigation';
 
 export const maxDuration = 60;
 
-export function ChatWithNewThread() {
-  const [model, setModel] = useState(AI_MODELS[0]!.id);
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+let newThreadID: string | undefined;
 
-  return (
-    <ChatLayout
-      messages={messages}
-      input={input}
-      model={model}
-      setModel={setModel}
-      handleInputChange={(e) => setInput(e.target.value)}
-      handleSubmit={async (e) => {
-        e.preventDefault();
-        const newMessages = [...messages, { role: 'user', content: input }];
-        setMessages(newMessages);
-        setInput('');
-        await createNewThread({ messages: newMessages });
-      }}
-    />
-  );
-}
-
-export function Chat({ threadId, initialMessages }: { threadId: string; initialMessages: any[] }) {
+export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: Message[] }) {
+  const router = useRouter();
   const [model, setModel] = useState(AI_MODELS[0]!.id);
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, input, data, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
+    id: threadId,
     initialMessages,
-    onResponse: (response) => {
-      console.log('useChat response', response);
+    onFinish: () => {
+      if (newThreadID) {
+        router.push(`/thread/${newThreadID}`);
+      }
     },
   });
 
-  return (
-    <ChatLayout messages={messages} input={input} handleInputChange={handleInputChange} handleSubmit={handleSubmit} />
-  );
-}
+  if (Array.isArray(data)) {
+    newThreadID = data.find((d) => d.threadId)?.threadId as string;
+  }
 
-function ChatLayout({ model, setModel, messages, input, handleInputChange, handleSubmit }: {}) {
   return (
     <div className="flex flex-col flex-1">
       <div className="flex items-center justify-between p-4 border-b border-border">
@@ -60,7 +42,7 @@ function ChatLayout({ model, setModel, messages, input, handleInputChange, handl
           <SelectTrigger
             id="chatbot"
             aria-label="Chatbot"
-            className="w-auto border-none shadow-none text-xl font-semibold"
+            className="w-auto border-none shadow-none text-xl font-semibold focus:ring-0"
           >
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>

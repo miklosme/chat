@@ -1,7 +1,8 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
-import { convertToCoreMessages, streamText } from 'ai';
+import { convertToCoreMessages, streamText, generateText, StreamData, type Message } from 'ai';
 import { currentUser } from '@clerk/nextjs/server';
+import { revalidatePath } from 'next/cache';
 import { AI_MODELS } from '@/lib/models';
 import { db, threads } from '@/db';
 import { eq, and } from 'drizzle-orm';
@@ -19,25 +20,60 @@ const requestSchema = z.object({
     }),
   ),
   model: z.string().refine((m) => AI_MODELS.find((model) => model.id === m) !== undefined),
-  threadId: z.string(),
+  threadId: z.string().optional(),
 });
 
 export async function POST(req: Request) {
-  let body 
+  let body;
   try {
-    body = requestSchema.parse(await req.json())
-  }
-  catch (e) {
+    body = requestSchema.parse(await req.json());
+  } catch (e) {
     return new Response('Bad Request', { status: 400 });
   }
 
-  const { messages, model, threadId } = body;
+  const { messages, model } = body;
 
   const user = await currentUser();
 
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
+
+  const data = new StreamData();
+
+  let threadId: string | undefined = body.threadId;
+
+  if (!threadId) {
+    const newThread = await db
+      .insert(threads)
+      .values({
+        title: 'New Thread',
+        messages,
+        ownerId: user.id,
+      })
+      .returning({ id: threads.id });
+
+    threadId = newThread[0]!.id;
+
+    data.append({ threadId });
+
+    void generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: `
+Summarize the conversation in this thread.
+Use only a few words.
+Don't use punctuation at the end.
+This is the first message:
+===
+${messages[0].content}`.trim(),
+    }).then(async ({ text: title }) => {
+      await db.update(threads).set({ title }).where(eq(threads.id, threadId!));
+
+      revalidatePath('/', 'layout');
+    });
+  }
+
+  await data.close();
 
   const vendor = AI_MODELS.find((m) => m.id === model)!.vendor;
 
@@ -64,18 +100,24 @@ export async function POST(req: Request) {
     messages: convertToCoreMessages(messages),
     onFinish: async (resp) => {
       const result = {
-        role: 'assistant',
+        role: 'assistant' as const,
         content: resp.text,
       };
 
-      const newMessages = [...messages, result].map((m) => ({
+      const newMessages: Message[] = [...messages, result].map((m) => ({
         ...m,
-        id: m.id || createId('msg'),
+        id: m.id || (createId('msg') as string),
       }));
 
-      await db.update(threads).set({ messages: newMessages, updatedAt: new Date() }).where(eq(threads.id, threadId));
+      await db
+        .update(threads)
+        .set({
+          messages: newMessages,
+          updatedAt: new Date(),
+        })
+        .where(eq(threads.id, threadId));
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({ data });
 }

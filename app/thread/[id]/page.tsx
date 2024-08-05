@@ -1,6 +1,7 @@
 import { Chat } from '@/components/chat';
 import { db, threads } from '@/db';
 import { sql } from 'drizzle-orm';
+import { type Message } from 'ai';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const data = await db
@@ -24,7 +25,7 @@ export default async function Thread({ params }: { params: { id: string } }) {
     .from(threads)
     .where(sql`${threads.id} = ${params.id}`);
 
-  const initialMessages = data[0]?.messages as any;
+  const initialMessages = data[0]?.messages as Message[];
 
   return <Chat threadId={params.id} initialMessages={initialMessages} />;
 }
