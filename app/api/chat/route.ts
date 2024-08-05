@@ -1,28 +1,37 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
-import { convertToCoreMessages, streamText, generateText, StreamData } from 'ai';
+import { convertToCoreMessages, streamText } from 'ai';
 import { currentUser } from '@clerk/nextjs/server';
 import { AI_MODELS } from '@/lib/models';
 import { db, threads } from '@/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { createId } from '@/lib/id';
+import { z } from 'zod';
 
 export const maxDuration = 60;
 
+const requestSchema = z.object({
+  messages: z.array(
+    z.object({
+      role: z.enum(['user', 'assistant']),
+      content: z.string(),
+      id: z.string().optional(),
+    }),
+  ),
+  model: z.string().refine((m) => AI_MODELS.find((model) => model.id === m) !== undefined),
+  threadId: z.string(),
+});
+
 export async function POST(req: Request) {
-  const { messages, model, threadId: requestThreadId } = await req.json();
-
-  // TODO validate thread ownership
-
-  if (!messages || !model) {
-    return new Response('Missing messages or model', { status: 400 });
+  let body 
+  try {
+    body = requestSchema.parse(await req.json())
+  }
+  catch (e) {
+    return new Response('Bad Request', { status: 400 });
   }
 
-  if (!AI_MODELS.find((m) => m.id === model)) {
-    return new Response('Invalid model', { status: 400 });
-  }
-
-  const data = new StreamData();
+  const { messages, model, threadId } = body;
 
   const user = await currentUser();
 
@@ -30,51 +39,28 @@ export async function POST(req: Request) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  let threadId: string = requestThreadId;
-
-  if (!requestThreadId) {
-    const newThread = await db
-      .insert(threads)
-      .values({
-        title: 'New Thread',
-        messages,
-        ownerId: user.id,
-      })
-      .returning({ id: threads.id });
-
-    threadId = newThread[0]!.id;
-
-    console.log('new thread', { redirectTo: `/thread/${threadId}` });
-
-    data.append({ redirectTo: `/thread/${threadId}` });
-
-    void generateText({
-      model: openai('gpt-4o-mini'),
-      prompt: `
-Summarize the conversation in this thread.
-Use only a few words.
-Don't use punctuation at the end.
-This is the first message:
-===
-${messages[0].content}`.trim(),
-    }).then(async ({ text: title }) => {
-      await db.update(threads).set({ title }).where(eq(threads.id, threadId));
-    });
-  }
-
-  data.close();
-
   const vendor = AI_MODELS.find((m) => m.id === model)!.vendor;
 
   const provider = vendor === 'OpenAI' ? openai : anthropic;
 
-  // TODO when refactored, make sure the stream does not wait while this is updating
-  // for now it's improtant because the @sidepanel refresh depends on the updatedAt
-  await db.update(threads).set({ messages, updatedAt: new Date() }).where(eq(threads.id, threadId));
+  const updatedThread = await db
+    .update(threads)
+    .set({ messages, updatedAt: new Date() })
+    .where(
+      and(
+        eq(threads.id, threadId),
+        // this validates ownership
+        eq(threads.ownerId, user.id),
+      ),
+    )
+    .returning({ id: threads.id });
+
+  if (updatedThread.length !== 1) {
+    return new Response('Thread not found', { status: 404 });
+  }
 
   const result = await streamText({
     model: provider(model),
-    // model: openai('gpt-4o-mini'),
     messages: convertToCoreMessages(messages),
     onFinish: async (resp) => {
       const result = {
@@ -91,5 +77,5 @@ ${messages[0].content}`.trim(),
     },
   });
 
-  return result.toDataStreamResponse({ data });
+  return result.toDataStreamResponse();
 }

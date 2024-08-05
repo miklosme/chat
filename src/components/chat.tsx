@@ -10,18 +10,36 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AI_MODELS } from '@/lib/models';
-import { useRouter } from 'next/navigation';
+import { createNewThread } from './actions';
 
-export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: any[] }) {
+export const maxDuration = 60;
+
+export function ChatWithNewThread() {
   const [model, setModel] = useState(AI_MODELS[0]!.id);
-  const router = useRouter();
-  const {
-    messages,
-    input,
-    data: _data,
-    handleInputChange,
-    handleSubmit,
-  } = useChat({
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+
+  return (
+    <ChatLayout
+      messages={messages}
+      input={input}
+      model={model}
+      setModel={setModel}
+      handleInputChange={(e) => setInput(e.target.value)}
+      handleSubmit={async (e) => {
+        e.preventDefault();
+        const newMessages = [...messages, { role: 'user', content: input }];
+        setMessages(newMessages);
+        setInput('');
+        await createNewThread({ messages: newMessages });
+      }}
+    />
+  );
+}
+
+export function Chat({ threadId, initialMessages }: { threadId: string; initialMessages: any[] }) {
+  const [model, setModel] = useState(AI_MODELS[0]!.id);
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
     initialMessages,
     onResponse: (response) => {
@@ -29,13 +47,12 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
     },
   });
 
-  const data = (_data ?? []) as [{ redirectTo?: string }];
-  const redirectTo = data.find((d) => d.redirectTo)?.redirectTo;
+  return (
+    <ChatLayout messages={messages} input={input} handleInputChange={handleInputChange} handleSubmit={handleSubmit} />
+  );
+}
 
-  if (!threadId && redirectTo) {
-    router.push(redirectTo);
-  }
-
+function ChatLayout({ model, setModel, messages, input, handleInputChange, handleSubmit }: {}) {
   return (
     <div className="flex flex-col flex-1">
       <div className="flex items-center justify-between p-4 border-b border-border">

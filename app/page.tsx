@@ -1,5 +1,5 @@
-import { Chat } from '@/components/chat';
+import { ChatWithNewThread } from '@/components/chat';
 
 export default async function Home() {
-  return <Chat />;
+  return <ChatWithNewThread />;
 }
