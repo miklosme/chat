@@ -13,13 +13,20 @@ import { z } from 'zod';
 export const maxDuration = 60;
 
 const requestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string(),
-      id: z.string().optional(),
-    }),
-  ),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+        id: z
+          .string()
+          .optional()
+          .transform((v) => v || createId('msg'))
+          .pipe(z.string()),
+        annotations: z.array(z.any()).optional(),
+      }),
+    )
+    .min(1),
   model: z.string().refine((m) => AI_MODELS.find((model) => model.id === m) !== undefined),
   threadId: z.string().optional(),
 });
@@ -66,7 +73,7 @@ Use only a few words.
 Don't use punctuation at the end.
 This is the first message:
 ===
-${messages[0].content}`.trim(),
+${messages[0]!.content}`.trim(),
     }).then(async ({ text: title }) => {
       await db.update(threads).set({ title }).where(eq(threads.id, threadId!));
 
@@ -101,15 +108,14 @@ ${messages[0].content}`.trim(),
     system: `You are an experienced litigation lawyer working at a law firm. Use professional language and tone, don't use emojis or slang.`,
     messages: convertToCoreMessages(messages),
     onFinish: async (resp) => {
-      const result = {
+      const result: Message = {
+        id: createId('msg'),
         role: 'assistant' as const,
         content: resp.text,
+        annotations: [{ model }],
       };
 
-      const newMessages: Message[] = [...messages, result].map((m) => ({
-        ...m,
-        id: m.id || (createId('msg') as string),
-      }));
+      const newMessages: Message[] = [...messages, result];
 
       await db
         .update(threads)

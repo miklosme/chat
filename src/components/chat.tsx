@@ -7,11 +7,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useRouter } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { useAtomValue } from 'jotai';
 import { ModelPicker, modelAtomWithPersistence } from './model-picker';
+import { AI_MODELS } from '@/lib/models';
+import { OpenAIIcon, AnthropicIcon, GoogleIcon } from '@/components/icons';
 
 export const maxDuration = 60;
 
@@ -33,8 +36,18 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
     },
   });
 
+  console.log('data', data)
+
   if (Array.isArray(data)) {
-    newThreadID = data.find((d) => d.threadId)?.threadId as string;
+    const foundItem = data.find(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        'threadId' in item &&
+        typeof (item as { threadId: unknown }).threadId === 'string',
+    ) as { threadId: string } | undefined;
+
+    newThreadID = foundItem?.threadId;
   }
 
   return (
@@ -54,23 +67,84 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
       </div>
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.map((m, index) => (
-            <div key={index}>
-              {m.role === 'user' ? (
+          {messages.map((m, index) => {
+            if (m.role === 'user') {
+              return (
                 <div className="flex justify-end">
                   <div className="bg-gray-800 text-white p-3 rounded-lg max-w-xs">{m.content}</div>
                 </div>
-              ) : (
+              );
+            }
+
+            if (m.role === 'assistant') {
+              const modelId = (m.annotations as Array<{ model?: string }>)?.find((a) => 'model' in a)?.model;
+              const model = modelId ? AI_MODELS.find((m) => m.id === modelId) : undefined;
+              return (
                 <div className="flex items-start">
-                  <Avatar className="mr-2">
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback>CG</AvatarFallback>
-                  </Avatar>
+                  {model?.vendor === 'OpenAI' ? (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Avatar className="mr-2">
+                          <AvatarFallback>
+                            <OpenAIIcon className="w-8 h-8" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{modelId}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : model?.vendor === 'Anthropic' ? (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Avatar className="mr-2">
+                          <AvatarFallback>
+                            <AnthropicIcon className="w-8 h-8" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{modelId}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : model?.vendor === 'Google' ? (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Avatar className="mr-2">
+                          {/* <AvatarImage>
+                        <GoogleIcon className="w-8 h-8 mr-2" />
+                      </AvatarImage>
+                      <AvatarFallback>G</AvatarFallback> */}
+                          <AvatarFallback>
+                            <GoogleIcon className="w-8 h-8" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{modelId}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Avatar className="mr-2">
+                          {/* <AvatarImage src="/placeholder-user.jpg" /> */}
+                          <AvatarFallback>?</AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Unknown model</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                   <div>{m.content}</div>
                 </div>
-              )}
-            </div>
-          ))}
+              );
+            }
+
+            // watch out for other role tpyes in the future
+            return null;
+          })}
         </div>
       </ScrollArea>
       <form onSubmit={handleSubmit} className="p-4 border-t border-border flex items-center">

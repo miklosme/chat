@@ -2,6 +2,7 @@ import { ClerkProvider, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { currentUser } from '@clerk/nextjs/server';
 import { PermissionDenied } from '@/components/permission-denied';
 import { Button } from '@/components/ui/button';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
@@ -21,16 +22,18 @@ export default function RootLayout({ children, sidepanel }: { children: React.Re
           <title>Chat</title>
           <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-              <SignedOut>
-                <header className="m-4">
-                  <Button variant="outline" asChild>
-                    <SignInButton />
-                  </Button>
-                </header>
-              </SignedOut>
-              <SignedIn>
-                <RootLayoutContent sidepanel={sidepanel}>{children}</RootLayoutContent>
-              </SignedIn>
+              <TooltipProvider delayDuration={300}>
+                <SignedOut>
+                  <header className="m-4">
+                    <Button variant="outline" asChild>
+                      <SignInButton />
+                    </Button>
+                  </header>
+                </SignedOut>
+                <SignedIn>
+                  <RootLayoutContent sidepanel={sidepanel}>{children}</RootLayoutContent>
+                </SignedIn>
+              </TooltipProvider>
             </ThemeProvider>
           </body>
         </html>
