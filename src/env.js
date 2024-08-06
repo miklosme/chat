@@ -16,6 +16,7 @@ export const env = createEnv({
     // AI
     OPENAI_API_KEY: z.string(),
     ANTHROPIC_API_KEY: z.string(),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string(),
   },
 
   /**
@@ -35,6 +36,7 @@ export const env = createEnv({
     CLERK_SECRET_KEY: process.env.DATABASE_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
 
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

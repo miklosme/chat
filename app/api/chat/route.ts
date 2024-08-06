@@ -1,5 +1,6 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
 import { convertToCoreMessages, streamText, generateText, StreamData, type Message } from 'ai';
 import { currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -77,7 +78,7 @@ ${messages[0].content}`.trim(),
 
   const vendor = AI_MODELS.find((m) => m.id === model)!.vendor;
 
-  const provider = vendor === 'OpenAI' ? openai : anthropic;
+  const provider = vendor === 'OpenAI' ? openai : vendor === 'Anthropic' ? anthropic : google;
 
   const updatedThread = await db
     .update(threads)
@@ -97,6 +98,7 @@ ${messages[0].content}`.trim(),
 
   const result = await streamText({
     model: provider(model),
+    system: `You are an experienced litigation lawyer working at a law firm. Use professional language and tone, don't use emojis or slang.`,
     messages: convertToCoreMessages(messages),
     onFinish: async (resp) => {
       const result = {

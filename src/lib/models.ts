@@ -1,7 +1,7 @@
 type AiModel = {
   id: string;
   name: string;
-  vendor: 'OpenAI' | 'Anthropic';
+  vendor: 'OpenAI' | 'Anthropic' | 'Google';
 };
 
 export const AI_MODELS: AiModel[] = [
@@ -34,5 +34,15 @@ export const AI_MODELS: AiModel[] = [
     id: 'gpt-4o-mini',
     name: 'GPT-4o-mini',
     vendor: 'OpenAI',
+  },
+  {
+    id: 'models/gemini-1.5-pro-latest',
+    name: 'Gemini 1.5 Pro',
+    vendor: 'Google',
+  },
+  {
+    id: 'models/gemini-1.5-flash-latest',
+    name: 'Gemini 1.5 Flash',
+    vendor: 'Google',
   },
 ];
