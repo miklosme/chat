@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useRouter } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { useAtomValue } from 'jotai';
 import { ModelPicker, modelAtomWithPersistence } from './model-picker';
 
@@ -26,6 +27,8 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
     onFinish: () => {
       if (newThreadID) {
         router.push(`/thread/${newThreadID}`);
+      } else {
+        revalidatePath('/thread/[id]', 'page');
       }
     },
   });
