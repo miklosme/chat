@@ -136,7 +136,7 @@ importers:
         specifier: latest
         version: 3.4.7
       typescript:
-        specifier: latest
+        specifier: ^5.5.4
         version: 5.5.4
 
 packages:

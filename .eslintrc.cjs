@@ -32,6 +32,7 @@ const config = {
     ],
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
   },
 }
 
