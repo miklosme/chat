@@ -46,3 +46,5 @@ export const AI_MODELS: AiModel[] = [
     vendor: 'Google',
   },
 ];
+
+export const DEFAULT_MODEL = AI_MODELS[0]!.id;

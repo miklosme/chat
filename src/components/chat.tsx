@@ -1,17 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import { type Message } from 'ai';
 import { useChat } from 'ai/react';
 import { UserButton } from '@clerk/nextjs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
-import { AI_MODELS } from '@/lib/models';
 import { useRouter } from 'next/navigation';
+import { useAtomValue } from 'jotai';
+import { ModelPicker, modelAtomWithPersistence } from './model-picker';
 
 export const maxDuration = 60;
 
@@ -19,7 +18,7 @@ let newThreadID: string | undefined;
 
 export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: Message[] }) {
   const router = useRouter();
-  const [model, setModel] = useState(AI_MODELS[0]!.id);
+  const model = useAtomValue(modelAtomWithPersistence);
   const { messages, input, data, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
     id: threadId,
@@ -38,22 +37,7 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
   return (
     <div className="flex flex-col flex-1">
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <Select value={model} onValueChange={setModel}>
-          <SelectTrigger
-            id="chatbot"
-            aria-label="Chatbot"
-            className="w-auto border-none shadow-none text-xl font-semibold focus:ring-0"
-          >
-            <SelectValue placeholder="Select a model" />
-          </SelectTrigger>
-          <SelectContent>
-            {AI_MODELS.map((model) => (
-              <SelectItem key={model.id} value={model.id}>
-                {model.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <ModelPicker />
         {/* <Avatar>
             <AvatarImage src="/placeholder-user.jpg" />
             <AvatarFallback>HE</AvatarFallback>

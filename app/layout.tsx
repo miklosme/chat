@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { Provider as JotaiProvider } from 'jotai';
 import './globals.css';
 
 const fontSans = FontSans({
@@ -15,23 +16,25 @@ const fontSans = FontSans({
 export default function RootLayout({ children, sidepanel }: { children: React.ReactNode; sidepanel: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <title>Chat</title>
-        <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <SignedOut>
-              <header className="m-4">
-                <Button variant="outline" asChild>
-                  <SignInButton />
-                </Button>
-              </header>
-            </SignedOut>
-            <SignedIn>
-              <RootLayoutContent sidepanel={sidepanel}>{children}</RootLayoutContent>
-            </SignedIn>
-          </ThemeProvider>
-        </body>
-      </html>
+      <JotaiProvider>
+        <html lang="en">
+          <title>Chat</title>
+          <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <SignedOut>
+                <header className="m-4">
+                  <Button variant="outline" asChild>
+                    <SignInButton />
+                  </Button>
+                </header>
+              </SignedOut>
+              <SignedIn>
+                <RootLayoutContent sidepanel={sidepanel}>{children}</RootLayoutContent>
+              </SignedIn>
+            </ThemeProvider>
+          </body>
+        </html>
+      </JotaiProvider>
     </ClerkProvider>
   );
 }
