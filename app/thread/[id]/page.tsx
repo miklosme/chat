@@ -1,7 +1,7 @@
-import { Chat } from '@/components/chat';
-import { db, threads } from '@/db';
-import { sql } from 'drizzle-orm';
-import { type Message } from 'ai';
+import { Chat } from '@/components/chat'
+import { db, threads } from '@/db'
+import { sql } from 'drizzle-orm'
+import { type Message } from 'ai'
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const data = await db
@@ -9,11 +9,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       title: threads.title,
     })
     .from(threads)
-    .where(sql`${threads.id} = ${params.id}`);
+    .where(sql`${threads.id} = ${params.id}`)
 
   return {
     title: data[0]?.title,
-  };
+  }
 }
 
 export default async function Thread({ params }: { params: { id: string } }) {
@@ -23,9 +23,9 @@ export default async function Thread({ params }: { params: { id: string } }) {
       messages: threads.messages,
     })
     .from(threads)
-    .where(sql`${threads.id} = ${params.id}`);
+    .where(sql`${threads.id} = ${params.id}`)
 
-  const initialMessages = data[0]?.messages as Message[];
+  const initialMessages = data[0]?.messages as Message[]
 
-  return <Chat threadId={params.id} initialMessages={initialMessages} />;
+  return <Chat threadId={params.id} initialMessages={initialMessages} />
 }

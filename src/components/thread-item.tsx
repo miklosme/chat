@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -17,24 +17,43 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from '@/components/ui/alert-dialog';
-import { EllipsisIcon, Trash2Icon, PenIcon, LoaderCircleIcon } from 'lucide-react';
-import Link from 'next/link';
-import { cva } from 'class-variance-authority';
-import { deleteThread } from './actions';
+} from '@/components/ui/alert-dialog'
+import {
+  EllipsisIcon,
+  Trash2Icon,
+  PenIcon,
+  LoaderCircleIcon,
+} from 'lucide-react'
+import Link from 'next/link'
+import { cva } from 'class-variance-authority'
+import { deleteThread } from './actions'
 
-const threadLink = cva('group block w-[235px] h-full p-1 hover:bg-muted rounded-md -ml-1', {
-  variants: {
-    active: {
-      true: 'bg-muted',
-      false: '',
+const threadLink = cva(
+  'group block w-[235px] h-full p-1 hover:bg-muted rounded-md -ml-1',
+  {
+    variants: {
+      active: {
+        true: 'bg-muted',
+        false: '',
+      },
     },
   },
-});
+)
 
-export function ThreadItem({ threadId, title, isSelected }: { threadId: string; title: string; isSelected?: boolean }) {
+export function ThreadItem({
+  threadId,
+  title,
+  isSelected,
+}: {
+  threadId: string
+  title: string
+  isSelected?: boolean
+}) {
   return (
-    <Link href={`/thread/${threadId}`} className={threadLink({ active: isSelected })}>
+    <Link
+      href={`/thread/${threadId}`}
+      className={threadLink({ active: isSelected })}
+    >
       <span className="flex justify-between">
         <span className="truncate">{title}</span>
         <span className="opacity-0 group-hover:opacity-100">
@@ -42,12 +61,12 @@ export function ThreadItem({ threadId, title, isSelected }: { threadId: string; 
         </span>
       </span>
     </Link>
-  );
+  )
 }
 
 export function ThreadMenu({ threadId }: { threadId: string }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { pending } = useFormStatus();
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { pending } = useFormStatus()
 
   return (
     <AlertDialog>
@@ -73,23 +92,36 @@ export function ThreadMenu({ threadId }: { threadId: string }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
         <AlertDialogContent>
-          <form action={deleteThread.bind(null, { threadId, onClose: () => setIsMenuOpen(false) })}>
+          <form
+            action={deleteThread.bind(null, {
+              threadId,
+              onClose: () => setIsMenuOpen(false),
+            })}
+          >
             <AlertDialogHeader className="mb-10">
-              <AlertDialogTitle className="text-red-500">Confirm Deletion</AlertDialogTitle>
-              <AlertDialogDescription>Are you sure you want to delete this thread?</AlertDialogDescription>
+              <AlertDialogTitle className="text-red-500">
+                Confirm Deletion
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this thread?
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel
                 disabled={pending}
                 onClick={() => {
-                  console.log('cancel');
-                  setIsMenuOpen(false);
+                  console.log('cancel')
+                  setIsMenuOpen(false)
                 }}
               >
                 Cancel
               </AlertDialogCancel>
               <Button type="submit" variant="default" disabled={pending}>
-                {pending ? <LoaderCircleIcon className="w-8 h-8 animate-spin" /> : 'Delete'}
+                {pending ? (
+                  <LoaderCircleIcon className="w-8 h-8 animate-spin" />
+                ) : (
+                  'Delete'
+                )}
               </Button>
               {/* <AlertDialogAction type="submit" disabled={pending}>
                 {pending ? <LoaderCircleIcon className="w-8 h-8 animate-spin" /> : 'Delete'}
@@ -99,5 +131,5 @@ export function ThreadMenu({ threadId }: { threadId: string }) {
         </AlertDialogContent>
       </DropdownMenu>
     </AlertDialog>
-  );
+  )
 }

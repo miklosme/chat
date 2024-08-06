@@ -1,5 +1,12 @@
-import { serial, text, timestamp, pgTable, varchar, jsonb } from 'drizzle-orm/pg-core';
-import { createId } from '@/lib/id';
+import {
+  serial,
+  text,
+  timestamp,
+  pgTable,
+  varchar,
+  jsonb,
+} from 'drizzle-orm/pg-core'
+import { createId } from '@/lib/id'
 
 export const threads = pgTable('threads', {
   id: varchar('id', { length: 191 + 4 })
@@ -11,4 +18,4 @@ export const threads = pgTable('threads', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
-});
+})

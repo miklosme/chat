@@ -1,8 +1,8 @@
 type AiModel = {
-  id: string;
-  name: string;
-  vendor: 'OpenAI' | 'Anthropic' | 'Google';
-};
+  id: string
+  name: string
+  vendor: 'OpenAI' | 'Anthropic' | 'Google'
+}
 
 export const AI_MODELS: AiModel[] = [
   {
@@ -45,6 +45,6 @@ export const AI_MODELS: AiModel[] = [
     name: 'Gemini 1.5 Flash',
     vendor: 'Google',
   },
-];
+]
 
-export const DEFAULT_MODEL = AI_MODELS[0]!.id;
+export const DEFAULT_MODEL = AI_MODELS[0]!.id

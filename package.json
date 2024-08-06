@@ -57,5 +57,12 @@
     "postcss": "latest",
     "tailwindcss": "latest",
     "typescript": "^5.5.4"
+  },
+  "prettier": {
+    "printWidth": 80,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "always",
+    "semi": false
   }
 }

@@ -1,27 +1,35 @@
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { AI_MODELS, DEFAULT_MODEL } from '@/lib/models';
-import { atom, useAtom } from 'jotai';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import { AI_MODELS, DEFAULT_MODEL } from '@/lib/models'
+import { atom, useAtom } from 'jotai'
 
-const MODEL_KEY = 'model';
+const MODEL_KEY = 'model'
 
 const modelAtom = atom<string>(
-  globalThis.localStorage ? localStorage.getItem(MODEL_KEY) || DEFAULT_MODEL : DEFAULT_MODEL,
-);
+  globalThis.localStorage
+    ? localStorage.getItem(MODEL_KEY) || DEFAULT_MODEL
+    : DEFAULT_MODEL,
+)
 
 export const modelAtomWithPersistence = atom(
   (get) => get(modelAtom),
   (get, set, value: string | null | undefined) => {
     if (!value) {
-      localStorage.removeItem(MODEL_KEY);
+      localStorage.removeItem(MODEL_KEY)
     } else {
-      set(modelAtom, value);
-      localStorage.setItem(MODEL_KEY, value);
+      set(modelAtom, value)
+      localStorage.setItem(MODEL_KEY, value)
     }
   },
-);
+)
 
 export function ModelPicker() {
-  const [model, setModel] = useAtom(modelAtomWithPersistence);
+  const [model, setModel] = useAtom(modelAtomWithPersistence)
 
   return (
     <Select value={model || undefined} onValueChange={setModel}>
@@ -40,5 +48,5 @@ export function ModelPicker() {
         ))}
       </SelectContent>
     </Select>
-  );
+  )
 }

@@ -1,42 +1,54 @@
-'use client';
+'use client'
 
-import { type Message } from 'ai';
-import { useChat } from 'ai/react';
-import { UserButton } from '@clerk/nextjs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ModeToggle } from '@/components/mode-toggle';
-import { useRouter } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
-import { useAtomValue } from 'jotai';
-import { ModelPicker, modelAtomWithPersistence } from './model-picker';
-import { AI_MODELS } from '@/lib/models';
-import { OpenAIIcon, AnthropicIcon, GoogleIcon } from '@/components/icons';
+import { type Message } from 'ai'
+import { useChat } from 'ai/react'
+import { UserButton } from '@clerk/nextjs'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { ModeToggle } from '@/components/mode-toggle'
+import { useRouter } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
+import { useAtomValue } from 'jotai'
+import { ModelPicker, modelAtomWithPersistence } from './model-picker'
+import { AI_MODELS } from '@/lib/models'
+import { OpenAIIcon, AnthropicIcon, GoogleIcon } from '@/components/icons'
 
-export const maxDuration = 60;
+export const maxDuration = 60
 
-let newThreadID: string | undefined;
+let newThreadID: string | undefined
 
-export function Chat({ threadId, initialMessages }: { threadId?: string; initialMessages?: Message[] }) {
-  const router = useRouter();
-  const model = useAtomValue(modelAtomWithPersistence);
+export function Chat({
+  threadId,
+  initialMessages,
+}: {
+  threadId?: string
+  initialMessages?: Message[]
+}) {
+  const router = useRouter()
+  const model = useAtomValue(modelAtomWithPersistence)
   const { messages, input, data, handleInputChange, handleSubmit } = useChat({
     body: { model, threadId },
     id: threadId,
     initialMessages,
     onFinish: () => {
       if (newThreadID) {
-        router.push(`/thread/${newThreadID}`);
+        router.push(`/thread/${newThreadID}`)
       } else {
-        revalidatePath('/thread/[id]', 'page');
+        revalidatePath('/thread/[id]', 'page')
       }
     },
-  });
+  })
 
-  newThreadID = (data as { threadId?: string }[])?.find((d) => d.threadId)?.threadId;
+  newThreadID = (data as { threadId?: string }[])?.find(
+    (d) => d.threadId,
+  )?.threadId
 
   return (
     <div className="flex flex-col flex-1">
@@ -59,14 +71,20 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
             if (m.role === 'user') {
               return (
                 <div key={index} className="flex justify-end">
-                  <div className="bg-gray-800 text-white p-3 rounded-lg max-w-xs">{m.content}</div>
+                  <div className="bg-gray-800 text-white p-3 rounded-lg max-w-xs">
+                    {m.content}
+                  </div>
                 </div>
-              );
+              )
             }
 
             if (m.role === 'assistant') {
-              const modelId = (m.annotations as Array<{ model?: string }>)?.find((a) => 'model' in a)?.model;
-              const model = modelId ? AI_MODELS.find((m) => m.id === modelId) : undefined;
+              const modelId = (
+                m.annotations as Array<{ model?: string }>
+              )?.find((a) => 'model' in a)?.model
+              const model = modelId
+                ? AI_MODELS.find((m) => m.id === modelId)
+                : undefined
               return (
                 <div key={index} className="flex items-start">
                   {model?.vendor === 'OpenAI' ? (
@@ -127,18 +145,26 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
                   )}
                   <div>{m.content}</div>
                 </div>
-              );
+              )
             }
 
             // watch out for other role tpyes in the future
-            return null;
+            return null
           })}
         </div>
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-border flex items-center">
-        <Input placeholder="Message" value={input} className="w-full mr-4" onChange={handleInputChange} />
+      <form
+        onSubmit={handleSubmit}
+        className="p-4 border-t border-border flex items-center"
+      >
+        <Input
+          placeholder="Message"
+          value={input}
+          className="w-full mr-4"
+          onChange={handleInputChange}
+        />
         <Button>Send</Button>
       </form>
     </div>
-  );
+  )
 }
