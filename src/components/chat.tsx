@@ -58,7 +58,7 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
           {messages.map((m, index) => {
             if (m.role === 'user') {
               return (
-                <div className="flex justify-end">
+                <div key={index} className="flex justify-end">
                   <div className="bg-gray-800 text-white p-3 rounded-lg max-w-xs">{m.content}</div>
                 </div>
               );
@@ -68,7 +68,7 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
               const modelId = (m.annotations as Array<{ model?: string }>)?.find((a) => 'model' in a)?.model;
               const model = modelId ? AI_MODELS.find((m) => m.id === modelId) : undefined;
               return (
-                <div className="flex items-start">
+                <div key={index} className="flex items-start">
                   {model?.vendor === 'OpenAI' ? (
                     <Tooltip>
                       <TooltipTrigger>

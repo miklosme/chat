@@ -10,4 +10,5 @@ export const threads = pgTable('threads', {
   ownerId: text('owner_id').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
 });

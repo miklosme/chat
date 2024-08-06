@@ -35,7 +35,7 @@ export default async function SidePanelDefault() {
       updatedAt: threads.updatedAt,
     })
     .from(threads)
-    .where(sql`${threads.ownerId} = ${user!.id}`)
+    .where(sql`${threads.ownerId} = ${user!.id} AND ${threads.deletedAt} IS NULL`)
     .orderBy(desc(threads.updatedAt));
 
   const threadsData = data.map((thread) => ({ ...thread, timeLabel: makeTimeLabel(thread.updatedAt) }));

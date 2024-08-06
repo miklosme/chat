@@ -4,7 +4,7 @@ import { Fragment, useState } from 'react';
 import { SquarePenIcon, PanelLeftIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { ThreadMenu } from '@/components/thread-menu';
+import { ThreadItem } from '@/components/thread-item';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { cva } from 'class-variance-authority';
@@ -14,15 +14,6 @@ const header = cva('flex items-center justify-between my-4 mx-1.5', {
     open: {
       true: 'flex-row',
       false: 'flex-col gap-2',
-    },
-  },
-});
-
-const threadLink = cva('group block w-[235px] h-full p-1 hover:bg-muted rounded-md -ml-1', {
-  variants: {
-    active: {
-      true: 'bg-muted',
-      false: '',
     },
   },
 });
@@ -55,14 +46,7 @@ export function SidePanel({
                 {index === 0 || arr[index - 1]!.timeLabel !== thread.timeLabel ? (
                   <h2 className="text-sm font-semibold text-muted-foreground my-2">{thread.timeLabel}</h2>
                 ) : null}
-                <Link href={`/thread/${thread.id}`} className={threadLink({ active: thread.id === params.id })}>
-                  <span className="flex justify-between">
-                    <span className="truncate">{thread.title}</span>
-                    <span className="opacity-0 group-hover:opacity-100">
-                      <ThreadMenu />
-                    </span>
-                  </span>
-                </Link>
+                <ThreadItem threadId={thread.id} title={thread.title} isSelected={thread.id === params.id} />
               </Fragment>
             ))}
           </div>
