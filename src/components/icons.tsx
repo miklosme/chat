@@ -4,7 +4,6 @@ export function OpenAIIcon(props: { className: string }) {
       viewBox="-8 -8 56 56"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="icon-md"
       {...props}
     >
       <text x={-9999} y={-9999}>
