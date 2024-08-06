@@ -36,19 +36,7 @@ export function Chat({ threadId, initialMessages }: { threadId?: string; initial
     },
   });
 
-  console.log('data', data)
-
-  if (Array.isArray(data)) {
-    const foundItem = data.find(
-      (item) =>
-        typeof item === 'object' &&
-        item !== null &&
-        'threadId' in item &&
-        typeof (item as { threadId: unknown }).threadId === 'string',
-    ) as { threadId: string } | undefined;
-
-    newThreadID = foundItem?.threadId;
-  }
+  newThreadID = (data as { threadId?: string }[])?.find((d) => d.threadId)?.threadId;
 
   return (
     <div className="flex flex-col flex-1">
