@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "drizzle-kit generate:pg",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.35",
@@ -55,6 +56,7 @@
     "drizzle-kit": "^0.23.1",
     "eslint-config-next": "14.2.0",
     "postcss": "latest",
+    "prettier": "^3.3.3",
     "tailwindcss": "latest",
     "typescript": "^5.5.4"
   },
@@ -64,5 +66,8 @@
     "trailingComma": "all",
     "arrowParens": "always",
     "semi": false
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
   }
 }
