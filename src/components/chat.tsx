@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useEffect } from 'react'
 import { type Message } from 'ai'
 import { useChat } from 'ai/react'
 import { UserButton } from '@clerk/nextjs'
@@ -50,6 +51,23 @@ export function Chat({
     (d) => d.threadId,
   )?.threadId
 
+  const endAnchor = useRef<HTMLDivElement>(null)
+
+  const lastMessageContent = messages[messages.length - 1]?.content
+
+  useEffect(() => {
+    if (endAnchor.current) {
+      endAnchor.current.scrollIntoView({
+        behavior: endAnchor.current.dataset.initialScrollHappened
+          ? 'smooth'
+          : 'instant',
+        block: 'end',
+        inline: 'end',
+      })
+      endAnchor.current.dataset.initialScrollHappened = 'true'
+    }
+  }, [lastMessageContent])
+
   return (
     <div className="flex flex-col flex-1">
       <div className="flex items-center justify-between p-4 border-b border-border">
@@ -65,8 +83,8 @@ export function Chat({
           </span>
         </div>
       </div>
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1">
+        <div className="space-y-4 p-4">
           {messages.map((m, index) => {
             if (m.role === 'user') {
               return (
@@ -152,6 +170,7 @@ export function Chat({
             return null
           })}
         </div>
+        <div ref={endAnchor} />
       </ScrollArea>
       <form
         onSubmit={handleSubmit}
