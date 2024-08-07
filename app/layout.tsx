@@ -1,12 +1,10 @@
-import { ClerkProvider, SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { currentUser } from '@clerk/nextjs/server'
 import { PermissionDenied } from '@/components/permission-denied'
 import { Button } from '@/components/ui/button'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { ThemeProvider } from '@/components/theme-provider'
 import { Inter as FontSans } from 'next/font/google'
 import { cn } from '@/lib/utils'
-import { Provider as JotaiProvider } from 'jotai'
+import { Providers } from './providers'
 import './globals.css'
 
 const fontSans = FontSans({
@@ -22,41 +20,30 @@ export default function RootLayout({
   sidepanel: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
-      <JotaiProvider>
-        <html lang="en">
-          <title>Chat</title>
-          <body
-            className={cn(
-              'min-h-screen bg-background font-sans antialiased',
-              fontSans.variable,
-            )}
-          >
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <TooltipProvider delayDuration={300}>
-                <SignedOut>
-                  <header className="m-4">
-                    <Button variant="outline" asChild>
-                      <SignInButton />
-                    </Button>
-                  </header>
-                </SignedOut>
-                <SignedIn>
-                  <RootLayoutContent sidepanel={sidepanel}>
-                    {children}
-                  </RootLayoutContent>
-                </SignedIn>
-              </TooltipProvider>
-            </ThemeProvider>
-          </body>
-        </html>
-      </JotaiProvider>
-    </ClerkProvider>
+    <html lang="en">
+      <title>Chat</title>
+      <body
+        className={cn(
+          'min-h-screen bg-background font-sans antialiased',
+          fontSans.variable,
+        )}
+      >
+        <Providers>
+          <SignedOut>
+            <header className="m-4">
+              <Button variant="outline" asChild>
+                <SignInButton />
+              </Button>
+            </header>
+          </SignedOut>
+          <SignedIn>
+            <RootLayoutContent sidepanel={sidepanel}>
+              {children}
+            </RootLayoutContent>
+          </SignedIn>
+        </Providers>
+      </body>
+    </html>
   )
 }
 
