@@ -9,7 +9,6 @@ import {
   type Message,
 } from 'ai'
 import { currentUser } from '@clerk/nextjs/server'
-import { revalidatePath } from 'next/cache'
 import { AI_MODELS } from '@/lib/models'
 import { db, threads } from '@/db'
 import { eq, and } from 'drizzle-orm'
@@ -84,8 +83,6 @@ This is the first message:
 ${messages[0]!.content}`.trim(),
     }).then(async ({ text: title }) => {
       await db.update(threads).set({ title }).where(eq(threads.id, threadId!))
-
-      revalidatePath('/', 'layout')
     })
   }
 

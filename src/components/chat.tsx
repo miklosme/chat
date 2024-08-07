@@ -15,11 +15,11 @@ import {
 } from '@/components/ui/tooltip'
 import { ModeToggle } from '@/components/mode-toggle'
 import { useRouter } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 import { useAtomValue } from 'jotai'
 import { ModelPicker, modelAtomWithPersistence } from './model-picker'
 import { AI_MODELS } from '@/lib/models'
 import { OpenAIIcon, AnthropicIcon, GoogleIcon } from '@/components/icons'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const maxDuration = 60
 
@@ -32,6 +32,7 @@ export function Chat({
   threadId?: string
   initialMessages?: Message[]
 }) {
+  const queryClient = useQueryClient()
   const router = useRouter()
   const model = useAtomValue(modelAtomWithPersistence)
   const { messages, input, data, handleInputChange, handleSubmit } = useChat({
@@ -41,9 +42,10 @@ export function Chat({
     onFinish: () => {
       if (newThreadID) {
         router.push(`/thread/${newThreadID}`)
-      } else {
-        revalidatePath('/thread/[id]', 'page')
       }
+      void queryClient.invalidateQueries({
+        queryKey: ['threads'],
+      })
     },
   })
 

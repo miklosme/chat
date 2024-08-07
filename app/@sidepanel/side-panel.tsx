@@ -8,6 +8,8 @@ import { ThreadItem } from '@/components/thread-item'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { cva } from 'class-variance-authority'
+import { useQuery } from '@tanstack/react-query'
+import { getThreads } from './actions'
 
 const header = cva('flex items-center justify-between my-4 mx-1.5', {
   variants: {
@@ -18,18 +20,30 @@ const header = cva('flex items-center justify-between my-4 mx-1.5', {
   },
 })
 
-export function SidePanel({
-  threadsData,
-}: {
-  threadsData: Array<{
-    id: string
-    title: string
-    updatedAt: Date
-    timeLabel: string
-  }>
-}) {
+export function SidePanel() {
   const [open, setOpen] = useState(true)
   const params = useParams<{ id: string }>()
+  const threads = useQuery({
+    queryKey: ['threads'],
+    queryFn: () => getThreads(),
+  })
+
+  const list = threads.data
+    ? threads.data.map((thread, index, arr) => (
+        <Fragment key={thread.id}>
+          {index === 0 || arr[index - 1]!.timeLabel !== thread.timeLabel ? (
+            <h2 className="text-sm font-semibold text-muted-foreground my-2">
+              {thread.timeLabel}
+            </h2>
+          ) : null}
+          <ThreadItem
+            threadId={thread.id}
+            title={thread.title}
+            isSelected={thread.id === params.id}
+          />
+        </Fragment>
+      ))
+    : null
 
   return (
     <>
@@ -45,23 +59,7 @@ export function SidePanel({
       </div>
       {open ? (
         <ScrollArea className="flex-1 w-64">
-          <div className="p-4">
-            {threadsData.map((thread, index, arr) => (
-              <Fragment key={thread.id}>
-                {index === 0 ||
-                arr[index - 1]!.timeLabel !== thread.timeLabel ? (
-                  <h2 className="text-sm font-semibold text-muted-foreground my-2">
-                    {thread.timeLabel}
-                  </h2>
-                ) : null}
-                <ThreadItem
-                  threadId={thread.id}
-                  title={thread.title}
-                  isSelected={thread.id === params.id}
-                />
-              </Fragment>
-            ))}
-          </div>
+          <div className="p-4">{list}</div>
         </ScrollArea>
       ) : null}
     </>
