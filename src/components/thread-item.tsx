@@ -26,6 +26,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { cva } from 'class-variance-authority'
+import { useRouter } from 'next/navigation'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteThread } from './actions'
 
 const threadLink = cva(
@@ -66,7 +68,11 @@ export function ThreadItem({
 
 export function ThreadMenu({ threadId }: { threadId: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { pending } = useFormStatus()
+  const queryClient = useQueryClient()
+  const router = useRouter()
+  const deleteThreadMutation = useMutation({
+    mutationFn: ({ threadId }: { threadId: string }) => deleteThread(threadId),
+  })
 
   return (
     <AlertDialog>
@@ -92,42 +98,54 @@ export function ThreadMenu({ threadId }: { threadId: string }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
         <AlertDialogContent>
-          <form
-            action={deleteThread.bind(null, {
-              threadId,
-              onClose: () => setIsMenuOpen(false),
-            })}
-          >
-            <AlertDialogHeader className="mb-10">
-              <AlertDialogTitle className="text-red-500">
-                Confirm Deletion
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this thread?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel
-                disabled={pending}
-                onClick={() => {
-                  console.log('cancel')
-                  setIsMenuOpen(false)
-                }}
-              >
-                Cancel
-              </AlertDialogCancel>
-              <Button type="submit" variant="default" disabled={pending}>
-                {pending ? (
-                  <LoaderCircleIcon className="w-8 h-8 animate-spin" />
-                ) : (
-                  'Delete'
-                )}
-              </Button>
-              {/* <AlertDialogAction type="submit" disabled={pending}>
-                {pending ? <LoaderCircleIcon className="w-8 h-8 animate-spin" /> : 'Delete'}
+          <AlertDialogHeader className="mb-10">
+            <AlertDialogTitle className="text-red-500">
+              Confirm Deletion
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this thread?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={deleteThreadMutation.isPending}
+              onClick={() => {
+                console.log('cancel')
+                setIsMenuOpen(false)
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              type="submit"
+              variant="default"
+              disabled={deleteThreadMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault()
+                deleteThreadMutation.mutate(
+                  { threadId },
+                  {
+                    onSuccess: () => {
+                      router.push('/thread')
+                      setIsMenuOpen(false)
+                      void queryClient.invalidateQueries({
+                        queryKey: ['threads'],
+                      })
+                    },
+                  },
+                )
+              }}
+            >
+              {deleteThreadMutation.isPending ? (
+                <LoaderCircleIcon className="w-8 h-8 animate-spin" />
+              ) : (
+                'Delete'
+              )}
+            </Button>
+            {/* <AlertDialogAction type="submit" disabled={deleteThreadMutation.isPending}>
+                {deleteThreadMutation.isPending ? <LoaderCircleIcon className="w-8 h-8 animate-spin" /> : 'Delete'}
               </AlertDialogAction> */}
-            </AlertDialogFooter>
-          </form>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </DropdownMenu>
     </AlertDialog>
