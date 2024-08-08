@@ -23,12 +23,10 @@ export default async function Thread() {
     .orderBy(desc(threads.updatedAt))
     .limit(1)
 
-  console.log('lastThread', lastThread)
-
   if (lastThread.length === 0) {
     redirect('/')
     return
   }
 
-  redirect(`/thread/${lastThread[0].id}`)
+  redirect(`/thread/${lastThread[0]!.id}`)
 }
