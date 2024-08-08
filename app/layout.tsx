@@ -47,7 +47,11 @@ export default function RootLayout({
   )
 }
 
-const WHITELIST = ['m.miklos05@gmail.com']
+const WHITELIST = [
+  // 'm.miklos05@gmail.com',
+  'miklos@lawclinger.com',
+  'ben@lawclinger.com',
+]
 
 async function RootLayoutContent({
   children,
